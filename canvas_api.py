@@ -45,6 +45,18 @@ def get_course_data(api_key, base_url, course_id):
         
         # Process data
         student_group_info = []
+        group_info = []
+        for group in groups:
+            group_id = group['id']
+            group_name = group['name']
+            member_count = len(group_memberships[group_id])
+            group_info.append({
+                "id": group_id,
+                "name": group_name,
+                "members_count": member_count
+            })
+            logging.debug(f"Group {group_name} has {member_count} members")
+
         for student in students:
             student_info = {
                 "id": student["id"],
@@ -65,7 +77,7 @@ def get_course_data(api_key, base_url, course_id):
         logging.info("Data processing completed successfully")
         return {
             "students": student_group_info,
-            "groups": groups
+            "groups": group_info
         }
     
     except requests.exceptions.RequestException as e:

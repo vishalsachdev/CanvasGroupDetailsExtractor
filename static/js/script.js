@@ -68,8 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     id: row.cells[0].textContent,
                     name: row.cells[1].textContent,
                     members_count: parseInt(row.cells[2].textContent)
-                })),
-                group_categories: [] // We don't have this information in the HTML, so we'll leave it empty
+                }))
             };
 
             fetch('/export', {

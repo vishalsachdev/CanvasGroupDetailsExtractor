@@ -44,7 +44,7 @@
                 <tr>
                     <td>{{ group.id }}</td>
                     <td>{{ group.name }}</td>
-                    <td>{{ group.members|length if group.members else 0 }}</td>
+                    <td>{{ group.members_count }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
