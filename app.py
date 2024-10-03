@@ -5,6 +5,7 @@ from sqlalchemy.orm import DeclarativeBase
 from canvas_api import get_course_data
 from data_processor import process_and_export_data
 import logging
+import traceback
 
 class Base(DeclarativeBase):
     pass
@@ -80,18 +81,20 @@ def export_data():
         file_path = process_and_export_data(data)
         logger.info(f"Data exported successfully to {file_path}")
         
-        @app.after_request
-        def remove_file(response):
+        response = send_file(file_path, as_attachment=True, download_name="canvas_course_data.csv", mimetype='text/csv')
+        
+        @response.call_on_close
+        def remove_file():
             try:
                 os.remove(file_path)
                 logger.info(f"Temporary file {file_path} removed")
             except Exception as e:
                 logger.error(f"Error removing temporary file {file_path}: {str(e)}")
-            return response
         
-        return send_file(file_path, as_attachment=True, download_name="canvas_course_data.csv", mimetype='text/csv')
+        return response
     except Exception as e:
         logger.error(f"Error during data export: {str(e)}")
+        logger.error(traceback.format_exc())
         error_message = str(e) if DEBUG_MODE else "An error occurred while exporting data. Please try again later."
         return jsonify({"error": error_message}), 500
 
