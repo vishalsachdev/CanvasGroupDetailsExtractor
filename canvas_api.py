@@ -1,18 +1,21 @@
 import requests
 import logging
-
-BASE_URL = "https://canvas.instructure.com/api/v1"
+from urllib.parse import urljoin
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def get_course_data(api_key, course_id):
+def get_course_data(api_key, base_url, course_id):
     headers = {"Authorization": f"Bearer {api_key}"}
     
     try:
+        # Validate base_url and course_id
+        if not base_url or not course_id:
+            raise ValueError("Base URL and Course ID are required.")
+
         # Get students
         logging.info(f"Fetching students for course {course_id}")
-        students_url = f"{BASE_URL}/courses/{course_id}/users?enrollment_type[]=student"
+        students_url = urljoin(base_url, f"/api/v1/courses/{course_id}/users?enrollment_type[]=student")
         logging.debug(f"GET request to: {students_url}")
         students_response = requests.get(students_url, headers=headers)
         students_response.raise_for_status()
@@ -21,7 +24,7 @@ def get_course_data(api_key, course_id):
         
         # Get groups
         logging.info(f"Fetching groups for course {course_id}")
-        groups_url = f"{BASE_URL}/courses/{course_id}/groups"
+        groups_url = urljoin(base_url, f"/api/v1/courses/{course_id}/groups")
         logging.debug(f"GET request to: {groups_url}")
         groups_response = requests.get(groups_url, headers=headers)
         groups_response.raise_for_status()
@@ -30,7 +33,7 @@ def get_course_data(api_key, course_id):
         
         # Get group memberships
         logging.info(f"Fetching group categories for course {course_id}")
-        memberships_url = f"{BASE_URL}/courses/{course_id}/group_categories"
+        memberships_url = urljoin(base_url, f"/api/v1/courses/{course_id}/group_categories")
         logging.debug(f"GET request to: {memberships_url}")
         memberships_response = requests.get(memberships_url, headers=headers)
         memberships_response.raise_for_status()

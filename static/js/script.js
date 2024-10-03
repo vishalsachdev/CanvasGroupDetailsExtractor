@@ -11,6 +11,24 @@ document.addEventListener('DOMContentLoaded', function() {
             error.style.display = 'none';
 
             const formData = new FormData(extractForm);
+            const courseUrl = formData.get('course_url');
+
+            // Extract base URL and course ID
+            try {
+                const url = new URL(courseUrl);
+                const baseUrl = `${url.protocol}//${url.hostname}`;
+                const courseId = url.pathname.split('/').pop();
+
+                formData.set('base_url', baseUrl);
+                formData.set('course_id', courseId);
+                formData.delete('course_url');
+            } catch (err) {
+                error.textContent = 'Invalid course URL. Please provide a valid Canvas course URL.';
+                error.style.display = 'block';
+                loading.style.display = 'none';
+                return;
+            }
+
             fetch('/extract', {
                 method: 'POST',
                 body: formData

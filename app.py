@@ -38,10 +38,11 @@ def index():
 @app.route('/extract', methods=['POST'])
 def extract_data():
     api_key = request.form['api_key']
+    base_url = request.form['base_url']
     course_id = request.form['course_id']
 
     try:
-        course_data = get_course_data(api_key, course_id)
+        course_data = get_course_data(api_key, base_url, course_id)
         return render_template('results.html', data=course_data, debug_mode=DEBUG_MODE)
     except ValueError as e:
         logging.error(f"Value error: {str(e)}")
