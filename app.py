@@ -79,7 +79,17 @@ def export_data():
         logger.info("Processing and exporting data")
         file_path = process_and_export_data(data)
         logger.info(f"Data exported successfully to {file_path}")
-        return send_file(file_path, as_attachment=True)
+        
+        @app.after_request
+        def remove_file(response):
+            try:
+                os.remove(file_path)
+                logger.info(f"Temporary file {file_path} removed")
+            except Exception as e:
+                logger.error(f"Error removing temporary file {file_path}: {str(e)}")
+            return response
+        
+        return send_file(file_path, as_attachment=True, download_name="canvas_course_data.csv")
     except Exception as e:
         logger.error(f"Error during data export: {str(e)}")
         error_message = str(e) if DEBUG_MODE else "An error occurred while exporting data. Please try again later."
