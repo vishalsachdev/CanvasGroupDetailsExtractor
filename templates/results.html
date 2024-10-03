@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Course Data Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Canvas Course Data Results</h1>
+        <h2>Students</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Groups</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in data.students %}
+                <tr>
+                    <td>{{ student.id }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>{{ ", ".join(student.groups) if student.groups else "No Group" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>Groups</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Members Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in data.groups %}
+                <tr>
+                    <td>{{ group.id }}</td>
+                    <td>{{ group.name }}</td>
+                    <td>{{ group.members|length if group.members else 0 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button id="exportBtn">Export Data</button>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
