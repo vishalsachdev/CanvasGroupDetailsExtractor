@@ -4,7 +4,7 @@ import logging
 BASE_URL = "https://canvas.instructure.com/api/v1"
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_course_data(api_key, course_id):
     headers = {"Authorization": f"Bearer {api_key}"}
@@ -13,6 +13,7 @@ def get_course_data(api_key, course_id):
         # Get students
         logging.info(f"Fetching students for course {course_id}")
         students_url = f"{BASE_URL}/courses/{course_id}/users?enrollment_type[]=student"
+        logging.debug(f"GET request to: {students_url}")
         students_response = requests.get(students_url, headers=headers)
         students_response.raise_for_status()
         students = students_response.json()
@@ -21,6 +22,7 @@ def get_course_data(api_key, course_id):
         # Get groups
         logging.info(f"Fetching groups for course {course_id}")
         groups_url = f"{BASE_URL}/courses/{course_id}/groups"
+        logging.debug(f"GET request to: {groups_url}")
         groups_response = requests.get(groups_url, headers=headers)
         groups_response.raise_for_status()
         groups = groups_response.json()
@@ -29,6 +31,7 @@ def get_course_data(api_key, course_id):
         # Get group memberships
         logging.info(f"Fetching group categories for course {course_id}")
         memberships_url = f"{BASE_URL}/courses/{course_id}/group_categories"
+        logging.debug(f"GET request to: {memberships_url}")
         memberships_response = requests.get(memberships_url, headers=headers)
         memberships_response.raise_for_status()
         group_categories = memberships_response.json()
@@ -67,6 +70,12 @@ def get_course_data(api_key, course_id):
                 raise ValueError("Invalid API key or unauthorized access")
             elif status_code == 404:
                 raise ValueError(f"Course with ID {course_id} not found")
+        elif isinstance(e, requests.exceptions.ConnectionError):
+            logging.error("Connection error occurred. Please check your internet connection.")
+            raise RuntimeError("Failed to connect to Canvas API. Please check your internet connection.")
+        elif isinstance(e, requests.exceptions.Timeout):
+            logging.error("Request timed out. Canvas API might be slow or unresponsive.")
+            raise RuntimeError("Request to Canvas API timed out. Please try again later.")
         raise RuntimeError(f"Failed to fetch data from Canvas API: {str(e)}")
     
     except Exception as e:

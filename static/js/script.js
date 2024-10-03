@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Network response was not ok');
+                    });
                 }
                 return response.text();
             })
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.innerHTML = html;
             })
             .catch(err => {
+                console.error('Error:', err);
                 error.textContent = 'An error occurred: ' + err.message;
                 error.style.display = 'block';
             })
@@ -58,7 +61,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.blob())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Export failed');
+                    });
+                }
+                return response.blob();
+            })
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -71,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 console.error('Export failed:', err);
-                alert('Export failed. Please try again.');
+                alert('Export failed: ' + err.message);
             });
         });
     }
