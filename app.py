@@ -89,7 +89,7 @@ def export_data():
                 logger.error(f"Error removing temporary file {file_path}: {str(e)}")
             return response
         
-        return send_file(file_path, as_attachment=True, download_name="canvas_course_data.csv")
+        return send_file(file_path, as_attachment=True, download_name="canvas_course_data.csv", mimetype='text/csv')
     except Exception as e:
         logger.error(f"Error during data export: {str(e)}")
         error_message = str(e) if DEBUG_MODE else "An error occurred while exporting data. Please try again later."
