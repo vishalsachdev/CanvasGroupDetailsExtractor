@@ -50,6 +50,8 @@
             </tbody>
         </table>
         <button id="exportBtn">Export Data</button>
+        <div id="exportLoading" style="display: none;">Exporting data...</div>
+        <div id="exportError" style="display: none;"></div>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

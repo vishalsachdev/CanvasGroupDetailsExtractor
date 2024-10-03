@@ -57,6 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (exportBtn) {
         exportBtn.addEventListener('click', function() {
+            const exportLoading = document.getElementById('exportLoading');
+            const exportError = document.getElementById('exportError');
+            
+            exportLoading.style.display = 'block';
+            exportError.style.display = 'none';
+            exportBtn.disabled = true;
+
             const data = {
                 students: Array.from(document.querySelectorAll('table:first-of-type tbody tr')).map(row => ({
                     id: row.cells[0].textContent,
@@ -98,7 +105,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 console.error('Export failed:', err);
-                alert('Export failed: ' + err.message);
+                exportError.textContent = 'Export failed: ' + err.message;
+                exportError.style.display = 'block';
+            })
+            .finally(() => {
+                exportLoading.style.display = 'none';
+                exportBtn.disabled = false;
             });
         });
     }
