@@ -31,14 +31,17 @@ def get_course_data(api_key, base_url, course_id):
         groups = groups_response.json()
         logging.info(f"Successfully fetched {len(groups)} groups")
         
-        # Get group memberships
-        logging.info(f"Fetching group categories for course {course_id}")
-        memberships_url = urljoin(base_url, f"/api/v1/courses/{course_id}/group_categories")
-        logging.debug(f"GET request to: {memberships_url}")
-        memberships_response = requests.get(memberships_url, headers=headers)
-        memberships_response.raise_for_status()
-        group_categories = memberships_response.json()
-        logging.info(f"Successfully fetched {len(group_categories)} group categories")
+        # Get group memberships for each group
+        group_memberships = {}
+        for group in groups:
+            group_id = group['id']
+            logging.info(f"Fetching memberships for group {group_id}")
+            memberships_url = urljoin(base_url, f"/api/v1/groups/{group_id}/memberships")
+            logging.debug(f"GET request to: {memberships_url}")
+            memberships_response = requests.get(memberships_url, headers=headers)
+            memberships_response.raise_for_status()
+            group_memberships[group_id] = memberships_response.json()
+            logging.info(f"Successfully fetched {len(group_memberships[group_id])} memberships for group {group_id}")
         
         # Process data
         student_group_info = []
@@ -51,16 +54,18 @@ def get_course_data(api_key, base_url, course_id):
             }
             
             for group in groups:
-                if any(member["user_id"] == student["id"] for member in group.get("members", [])):
+                group_id = group['id']
+                if any(member["user_id"] == student["id"] for member in group_memberships[group_id]):
                     student_info["groups"].append(group["name"])
+                    logging.debug(f"Student {student['id']} assigned to group {group['name']}")
             
             student_group_info.append(student_info)
+            logging.debug(f"Processed student {student['id']} with groups: {student_info['groups']}")
         
         logging.info("Data processing completed successfully")
         return {
             "students": student_group_info,
-            "groups": groups,
-            "group_categories": group_categories
+            "groups": groups
         }
     
     except requests.exceptions.RequestException as e:
